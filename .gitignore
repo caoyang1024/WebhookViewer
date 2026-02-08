@@ -11,12 +11,14 @@ dist/
 
 # IDE
 .idea/
+.claude/
 *.swp
 *.swo
 
 # OS
 .DS_Store
 Thumbs.db
+nul
 
 # Environment
 .env
