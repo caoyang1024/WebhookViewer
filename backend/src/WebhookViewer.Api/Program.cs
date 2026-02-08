@@ -18,9 +18,15 @@ builder.Services.AddSignalR();
 var redisConnection = builder.Configuration.GetValue<string>("Redis:Connection") ?? "localhost:6379";
 builder.Services.AddSingleton<IConnectionMultiplexer>(
     ConnectionMultiplexer.Connect(redisConnection));
-builder.Services.AddSingleton<ISettingsStore, RedisSettingsStore>();
 builder.Services.AddSingleton<IMessageStore, RedisMessageStore>();
-builder.Services.AddSingleton<IUserStore, RedisUserStore>();
+
+// SQLite for persistent data (users, settings)
+var dbPath = Path.Combine(builder.Environment.ContentRootPath, "webhookviewer.db");
+var sqliteDb = new SqliteDb(dbPath);
+await sqliteDb.InitializeAsync();
+builder.Services.AddSingleton(sqliteDb);
+builder.Services.AddSingleton<ISettingsStore, SqliteSettingsStore>();
+builder.Services.AddSingleton<IUserStore, SqliteUserStore>();
 
 // Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -58,7 +64,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Dev", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins("http://localhost:5173", "http://localhost:5177")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
