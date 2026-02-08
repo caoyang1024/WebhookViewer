@@ -3,9 +3,10 @@ import { useAuthContext } from '../../context/AuthContext';
 interface Props {
   onLoginClick: () => void;
   onUsersClick: () => void;
+  onChangePasswordClick: () => void;
 }
 
-export function UserMenu({ onLoginClick, onUsersClick }: Props) {
+export function UserMenu({ onLoginClick, onUsersClick, onChangePasswordClick }: Props) {
   const { user, logout, can } = useAuthContext();
 
   if (!user) {
@@ -48,6 +49,23 @@ export function UserMenu({ onLoginClick, onUsersClick }: Props) {
           </svg>
         </button>
       )}
+      <button
+        onClick={onChangePasswordClick}
+        title="Change Password"
+        style={{
+          background: 'none',
+          border: 'none',
+          color: '#94a3b8',
+          cursor: 'pointer',
+          padding: 4,
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+        </svg>
+      </button>
       <span style={{ fontSize: 12, color: '#94a3b8' }}>{user.username}</span>
       <button
         onClick={logout}

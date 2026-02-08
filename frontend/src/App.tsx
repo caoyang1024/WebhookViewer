@@ -6,6 +6,7 @@ import { MessageList } from './components/MessageList/MessageList';
 import { SettingsModal } from './components/Settings/SettingsModal';
 import { LoginModal } from './components/Auth/LoginModal';
 import { UserManagement } from './components/Auth/UserManagement';
+import { ChangePasswordModal } from './components/Auth/ChangePasswordModal';
 import { useMessageFilter } from './hooks/useMessageFilter';
 import { useWebhookMessages } from './hooks/useWebhookMessages';
 import { deleteMessage } from './services/api';
@@ -17,6 +18,7 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const [usersOpen, setUsersOpen] = useState(false);
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
   const handleDelete = useCallback(async (id: string) => {
@@ -44,10 +46,12 @@ export default function App() {
         onSettingsOpen={() => setSettingsOpen(true)}
         onLoginClick={() => setLoginOpen(true)}
         onUsersClick={() => setUsersOpen(true)}
+        onChangePasswordClick={() => setChangePasswordOpen(true)}
       />
       {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
       {loginOpen && <LoginModal onClose={() => setLoginOpen(false)} />}
       {usersOpen && <UserManagement onClose={() => setUsersOpen(false)} />}
+      {changePasswordOpen && <ChangePasswordModal onClose={() => setChangePasswordOpen(false)} />}
       <FilterBar
         filter={filter}
         onLevelsChange={setLevels}

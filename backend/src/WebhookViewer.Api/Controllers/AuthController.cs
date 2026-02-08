@@ -58,6 +58,27 @@ public class AuthController : ControllerBase
         return Ok(UserInfo.FromUser(user));
     }
 
+    [HttpPut("me/password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        var username = User.Identity?.Name;
+        if (username == null) return Unauthorized();
+
+        var user = await _userStore.GetAsync(username);
+        if (user == null) return Unauthorized();
+
+        if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
+            return BadRequest(new { error = "Current password is incorrect" });
+
+        if (string.IsNullOrWhiteSpace(request.NewPassword))
+            return BadRequest(new { error = "New password is required" });
+
+        var hash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        await _userStore.UpdateAsync(username, hash, null);
+        return NoContent();
+    }
+
     [HttpGet("users")]
     [Authorize(Policy = "ManageUsers")]
     public async Task<ActionResult<List<UserInfo>>> ListUsers()

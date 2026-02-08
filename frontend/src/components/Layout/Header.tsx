@@ -18,9 +18,10 @@ interface Props {
   onSettingsOpen: () => void;
   onLoginClick: () => void;
   onUsersClick: () => void;
+  onChangePasswordClick: () => void;
 }
 
-export function Header({ connectionStatus, onSettingsOpen, onLoginClick, onUsersClick }: Props) {
+export function Header({ connectionStatus, onSettingsOpen, onLoginClick, onUsersClick, onChangePasswordClick }: Props) {
   return (
     <header style={{
       display: 'flex',
@@ -35,7 +36,7 @@ export function Header({ connectionStatus, onSettingsOpen, onLoginClick, onUsers
         <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Log Viewer</h1>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <UserMenu onLoginClick={onLoginClick} onUsersClick={onUsersClick} />
+        <UserMenu onLoginClick={onLoginClick} onUsersClick={onUsersClick} onChangePasswordClick={onChangePasswordClick} />
         <button
           onClick={onSettingsOpen}
           title="Settings"

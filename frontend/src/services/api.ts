@@ -84,6 +84,19 @@ export async function fetchCurrentUser(): Promise<UserInfo | null> {
   return res.json();
 }
 
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  const res = await fetch(`${BASE}/auth/me/password`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ currentPassword, newPassword }),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error ?? 'Failed to change password');
+  }
+}
+
 export async function fetchUsers(): Promise<UserInfo[]> {
   const res = await fetch(`${BASE}/auth/users`, { credentials: 'include' });
   if (!res.ok) throw new Error(`Failed to fetch users: ${res.status}`);
