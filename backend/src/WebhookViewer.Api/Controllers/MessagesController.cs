@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using WebhookViewer.Api.Hubs;
@@ -35,6 +36,7 @@ public class MessagesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "DeleteSingle")]
     public async Task<IActionResult> Delete(string id)
     {
         var deleted = await _store.DeleteAsync(id);
@@ -45,6 +47,7 @@ public class MessagesController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize(Policy = "DeleteBulk")]
     public async Task<IActionResult> BatchDelete([FromBody] BatchDeleteRequest request)
     {
         if (request.All)

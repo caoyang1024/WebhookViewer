@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using StackExchange.Redis;
+using WebhookViewer.Api.Auth;
 using WebhookViewer.Api.Hubs;
 using WebhookViewer.Api.Services;
 
@@ -17,6 +20,38 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(
     ConnectionMultiplexer.Connect(redisConnection));
 builder.Services.AddSingleton<ISettingsStore, RedisSettingsStore>();
 builder.Services.AddSingleton<IMessageStore, RedisMessageStore>();
+builder.Services.AddSingleton<IUserStore, RedisUserStore>();
+
+// Authentication
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "WebhookViewer.Auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Events.OnRedirectToLogin = ctx =>
+        {
+            ctx.Response.StatusCode = 401;
+            return Task.CompletedTask;
+        };
+        options.Events.OnRedirectToAccessDenied = ctx =>
+        {
+            ctx.Response.StatusCode = 403;
+            return Task.CompletedTask;
+        };
+    });
+
+// Authorization
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("DeleteSingle", policy =>
+        policy.Requirements.Add(new PermissionRequirement("DeleteSingle")))
+    .AddPolicy("DeleteBulk", policy =>
+        policy.Requirements.Add(new PermissionRequirement("DeleteBulk")))
+    .AddPolicy("ManageSettings", policy =>
+        policy.Requirements.Add(new PermissionRequirement("ManageSettings")))
+    .AddPolicy("ManageUsers", policy =>
+        policy.Requirements.Add(new PermissionRequirement("ManageUsers")));
 
 // CORS for dev
 builder.Services.AddCors(options =>
@@ -32,8 +67,14 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Seed default admin account
+var userStore = app.Services.GetRequiredService<IUserStore>();
+await userStore.EnsureAdminAsync();
+
 app.UseCors("Dev");
 app.UseStaticFiles();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 app.MapHub<WebhookHub>("/hubs/webhook");
 app.MapFallbackToFile("index.html");

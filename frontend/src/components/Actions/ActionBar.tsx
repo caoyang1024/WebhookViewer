@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { batchDelete, deleteMessage } from '../../services/api';
+import { useAuthContext } from '../../context/AuthContext';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 
 interface Props {
@@ -26,6 +27,7 @@ export function ActionBar({
   onAutoScrollToggle,
 }: Props) {
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
+  const { can } = useAuthContext();
 
   const handleDeleteSelected = async () => {
     if (selectedIds.size === 1) {
@@ -70,7 +72,7 @@ export function ActionBar({
           {selectedCount > 0 ? 'Deselect All' : 'Select All'}
         </button>
 
-        {selectedCount > 0 && (
+        {selectedCount > 0 && (selectedCount === 1 ? can('deleteSingle') : can('deleteBulk')) && (
           <button
             onClick={() => setConfirmAction('selected')}
             style={{
@@ -87,7 +89,7 @@ export function ActionBar({
           </button>
         )}
 
-        {totalCount > 0 && (
+        {totalCount > 0 && can('deleteBulk') && (
           <button
             onClick={() => setConfirmAction('all')}
             style={{

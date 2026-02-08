@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import type { WebhookMessage } from '../../types/webhook';
+import { useAuthContext } from '../../context/AuthContext';
 import { CopyButton } from '../common/CopyButton';
 import { HeadersTable } from './HeadersTable';
 import { BodyViewer } from './BodyViewer';
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function MessageDetail({ message, onDelete }: Props) {
+  const { can } = useAuthContext();
   return (
     <div style={{
       padding: '12px 16px',
@@ -63,20 +65,22 @@ export function MessageDetail({ message, onDelete }: Props) {
       {/* Actions */}
       <div style={{ display: 'flex', gap: 8 }}>
         <CopyButton text={message.rawBody ?? ''} label="Copy JSON" />
-        <button
-          onClick={() => onDelete(message.id)}
-          style={{
-            padding: '4px 10px',
-            fontSize: 12,
-            border: '1px solid #fca5a5',
-            borderRadius: 4,
-            background: '#fef2f2',
-            color: '#991b1b',
-            cursor: 'pointer',
-          }}
-        >
-          Delete
-        </button>
+        {can('deleteSingle') && (
+          <button
+            onClick={() => onDelete(message.id)}
+            style={{
+              padding: '4px 10px',
+              fontSize: 12,
+              border: '1px solid #fca5a5',
+              borderRadius: 4,
+              background: '#fef2f2',
+              color: '#991b1b',
+              cursor: 'pointer',
+            }}
+          >
+            Delete
+          </button>
+        )}
       </div>
     </div>
   );

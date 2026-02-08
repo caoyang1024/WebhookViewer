@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebhookViewer.Api.Models;
 using WebhookViewer.Api.Services;
@@ -23,6 +24,7 @@ public class SettingsController : ControllerBase
     }
 
     [HttpPut]
+    [Authorize(Policy = "ManageSettings")]
     public async Task<ActionResult<TTLSettings>> Put([FromBody] TTLSettings settings)
     {
         var saved = await _settings.SaveAsync(settings);

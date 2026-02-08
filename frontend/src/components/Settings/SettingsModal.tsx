@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { TTLSettings } from '../../types/webhook';
+import { useAuthContext } from '../../context/AuthContext';
 import { fetchSettings, updateSettings } from '../../services/api';
 
 const LEVELS = [
@@ -29,9 +30,11 @@ interface Props {
 }
 
 export function SettingsModal({ onClose }: Props) {
+  const { can } = useAuthContext();
   const [settings, setSettings] = useState<TTLSettings | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const canSave = can('manageSettings');
 
   useEffect(() => {
     fetchSettings().then(setSettings).catch(() => setError('Failed to load settings'));
@@ -157,7 +160,8 @@ export function SettingsModal({ onClose }: Props) {
           </button>
           <button
             onClick={handleSave}
-            disabled={saving || !settings}
+            disabled={saving || !settings || !canSave}
+            title={canSave ? undefined : 'Login with settings permission to save'}
             style={{
               padding: '8px 16px',
               borderRadius: 4,
@@ -166,8 +170,8 @@ export function SettingsModal({ onClose }: Props) {
               color: '#fff',
               fontSize: 13,
               fontWeight: 600,
-              cursor: saving ? 'not-allowed' : 'pointer',
-              opacity: saving ? 0.6 : 1,
+              cursor: saving || !canSave ? 'not-allowed' : 'pointer',
+              opacity: saving || !canSave ? 0.6 : 1,
             }}
           >
             {saving ? 'Saving...' : 'Save'}

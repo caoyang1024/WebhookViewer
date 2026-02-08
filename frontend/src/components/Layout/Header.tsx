@@ -1,4 +1,5 @@
 import type { ConnectionStatus } from '../../services/signalr';
+import { UserMenu } from '../Auth/UserMenu';
 
 const statusColors: Record<ConnectionStatus, string> = {
   connected: '#22c55e',
@@ -15,9 +16,11 @@ const statusLabels: Record<ConnectionStatus, string> = {
 interface Props {
   connectionStatus: ConnectionStatus;
   onSettingsOpen: () => void;
+  onLoginClick: () => void;
+  onUsersClick: () => void;
 }
 
-export function Header({ connectionStatus, onSettingsOpen }: Props) {
+export function Header({ connectionStatus, onSettingsOpen, onLoginClick, onUsersClick }: Props) {
   return (
     <header style={{
       display: 'flex',
@@ -32,6 +35,7 @@ export function Header({ connectionStatus, onSettingsOpen }: Props) {
         <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>Log Viewer</h1>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <UserMenu onLoginClick={onLoginClick} onUsersClick={onUsersClick} />
         <button
           onClick={onSettingsOpen}
           title="Settings"
